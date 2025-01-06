@@ -1,0 +1,449 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "description": "This is a REST API for the To Do List App, developed using modern technologies including Node.js, MySQL, Redis, and Docker. It allows users to efficiently manage their daily tasks, providing features such as user authentication, task categorization, and CRUD operations for tasks and categories. This documentation provides comprehensive details about all available endpoints, request parameters, and response formats.",
+      "version": "1.0.0",
+      "title": "To Do List REST API",
+      "contact": {
+        "email": "olfa.mahjoub.ing@gmail.com"
+      }
+    },
+    "host": "localhost:3001",
+    "basePath": "/api/v1",
+    "schemes": ["http", "https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "tags": [
+      {
+        "name": "users",
+        "description": "Endpoints for managing users, including registration, login, and profile updates."
+      },
+      {
+        "name": "categories",
+        "description": "Endpoints for managing task categories, including adding, updating, and deleting categories."
+      },
+      {
+        "name": "tasks",
+        "description": "Endpoints for managing tasks, including creation, updating, and deletion."
+      }
+    ],
+    "paths": {
+      "/api/v1/users/register-email": {
+        "post": {
+          "tags": ["users"],
+          "summary": "Register a new user using email and password",
+          "description": "Creates a new user in the system and sends an email verification link.",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "User registration details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserRegisterEmail"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User registered successfully",
+              "schema": {
+                "$ref": "#/definitions/UserResponse"
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/users/login-email": {
+        "post": {
+          "tags": ["users"],
+          "summary": "Log in a user with email and password",
+          "description": "Authenticates a user and returns a JWT token.",
+          "parameters": [
+            {
+              "name": "user",
+              "in": "body",
+              "description": "User login details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserLoginEmail"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Login successful",
+              "schema": {
+                "$ref": "#/definitions/UserResponse"
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/users/update-user": {
+        "put": {
+          "tags": ["users"],
+          "summary": "Update user details",
+          "description": "Updates the profile details of the authenticated user.",
+          "parameters": [
+            {
+              "name": "Authorization",
+              "in": "header",
+              "description": "JWT token for authentication",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "user",
+              "in": "body",
+              "description": "Updated user details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/UserUpdate"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User updated successfully",
+              "schema": {
+                "$ref": "#/definitions/UserResponse"
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/categories": {
+        "post": {
+          "tags": ["categories"],
+          "summary": "Create a new category",
+          "description": "Creates a new category for organizing tasks.",
+          "parameters": [
+            {
+              "name": "category",
+              "in": "body",
+              "description": "Category details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Category"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category created successfully",
+              "schema": {
+                "$ref": "#/definitions/CategoryResponse"
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": ["categories"],
+          "summary": "Get all categories",
+          "description": "Retrieves all categories available in the system.",
+          "responses": {
+            "200": {
+              "description": "List of categories",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/CategoryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/categories/{id}": {
+        "get": {
+          "tags": ["categories"],
+          "summary": "Get a category by ID",
+          "description": "Retrieves a specific category by its ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Category ID",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category details",
+              "schema": {
+                "$ref": "#/definitions/CategoryResponse"
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["categories"],
+          "summary": "Update a category",
+          "description": "Updates the details of an existing category.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Category ID",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "category",
+              "in": "body",
+              "description": "Updated category details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Category"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category updated successfully",
+              "schema": {
+                "$ref": "#/definitions/CategoryResponse"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["categories"],
+          "summary": "Delete a category",
+          "description": "Deletes a specific category by its ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Category ID",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Category deleted successfully"
+            }
+          }
+        }
+      },
+      "/api/v1/tasks": {
+        "post": {
+          "tags": ["tasks"],
+          "summary": "Create a new task",
+          "description": "Creates a new task under a specific category.",
+          "parameters": [
+            {
+              "name": "task",
+              "in": "body",
+              "description": "Task details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Task created successfully",
+              "schema": {
+                "$ref": "#/definitions/TaskResponse"
+              }
+            }
+          }
+        },
+        "get": {
+          "tags": ["tasks"],
+          "summary": "Get all tasks",
+          "description": "Retrieves all tasks available in the system.",
+          "responses": {
+            "200": {
+              "description": "List of tasks",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TaskResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/tasks/{id}": {
+        "get": {
+          "tags": ["tasks"],
+          "summary": "Get a task by ID",
+          "description": "Retrieves a specific task by its ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Task ID",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Task details",
+              "schema": {
+                "$ref": "#/definitions/TaskResponse"
+              }
+            }
+          }
+        },
+        "patch": {
+          "tags": ["tasks"],
+          "summary": "Update a task",
+          "description": "Updates the details of an existing task.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Task ID",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "task",
+              "in": "body",
+              "description": "Updated task details",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Task updated successfully",
+              "schema": {
+                "$ref": "#/definitions/TaskResponse"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": ["tasks"],
+          "summary": "Delete a task",
+          "description": "Deletes a specific task by its ID.",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Task ID",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Task deleted successfully"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "UserRegisterEmail": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "UserLoginEmail": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "password"]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "TaskResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+  
